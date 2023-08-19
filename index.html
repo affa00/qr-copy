@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>カメラQRコードリーダー</title>
+    <style>
+        #video-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #qr-result {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="video-container">
+        <video id="qr-video" playsinline autoplay></video>
+    </div>
+    <p id="qr-result"></p>
+
+    <script src="https://cdn.rawgit.com/zxing-js/library/gh-pages/index.js"></script>
+    <script>
+        const video = document.getElementById("qr-video");
+        const qrResult = document.getElementById("qr-result");
+
+        // カメラにアクセスしてビデオを表示する
+        async function setupCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = stream;
+            } catch (error) {
+                console.error("カメラへのアクセスに失敗しました:", error);
+            }
+        }
+
+        // QRコードを読み取る
+        async function scanQRCode() {
+            const codeReader = new ZXing.BrowserQRCodeReader();
+            try {
+                const result = await codeReader.decodeFromVideoDevice(undefined, "qr-video");
+                qrResult.textContent = "読み取った文字列: " + result.text;
+            } catch (error) {
+                qrResult.textContent = "QRコードの読み取りに失敗しました。";
+            }
+        }
+
+        // ページが読み込まれたときの処理
+        window.onload = async function () {
+            await setupCamera();
+            scanQRCode();
+        };
+    </script>
+</body>
+</html>
