@@ -20,11 +20,13 @@
     <div id="video-container">
         <video id="qr-video" playsinline autoplay></video>
     </div>
+    <button id="start-camera-btn">カメラを起動</button>
     <p id="qr-result"></p>
 
     <script src="https://cdn.rawgit.com/zxing-js/library/gh-pages/index.js"></script>
     <script>
         const video = document.getElementById("qr-video");
+        const startCameraBtn = document.getElementById("start-camera-btn");
         const qrResult = document.getElementById("qr-result");
 
         // カメラにアクセスしてビデオを表示する
@@ -32,6 +34,8 @@
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 video.srcObject = stream;
+                startCameraBtn.disabled = true;
+                startQRCodeScan();
             } catch (error) {
                 console.error("カメラへのアクセスに失敗しました:", error);
             }
@@ -48,11 +52,15 @@
             }
         }
 
-        // ページが読み込まれたときの処理
-        window.onload = async function () {
-            await setupCamera();
+        // カメラを起動してQRコード読み取りを開始する
+        function startQRCodeScan() {
             scanQRCode();
-        };
+        }
+
+        // ボタンがクリックされたときの処理
+        startCameraBtn.addEventListener("click", function () {
+            setupCamera();
+        });
     </script>
 </body>
 </html>
