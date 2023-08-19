@@ -1,66 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>カメラQRコードリーダー</title>
+    <title>QRコード生成器</title>
     <style>
-        #video-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        #input-text {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
         }
-        #qr-result {
-            text-align: center;
-            font-size: 18px;
-            margin-top: 10px;
+        #qr-code {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div id="video-container">
-        <video id="qr-video" playsinline autoplay></video>
-    </div>
-    <button id="start-camera-btn">カメラを起動</button>
-    <p id="qr-result"></p>
+    <h1>QRコード生成器</h1>
+    <input type="text" id="input-text" placeholder="QRコードにしたいテキストを入力してください">
+    <div id="qr-code"></div>
 
-    <script src="https://cdn.rawgit.com/zxing-js/library/gh-pages/index.js"></script>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script>
-        const video = document.getElementById("qr-video");
-        const startCameraBtn = document.getElementById("start-camera-btn");
-        const qrResult = document.getElementById("qr-result");
+        const inputText = document.getElementById("input-text");
+        const qrCodeDiv = document.getElementById("qr-code");
 
-        // カメラにアクセスしてビデオを表示する
-        async function setupCamera() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                video.srcObject = stream;
-                startCameraBtn.disabled = true;
-                startQRCodeScan();
-            } catch (error) {
-                console.error("カメラへのアクセスに失敗しました:", error);
+        // テキストが変更されたときにQRコードを更新する
+        inputText.addEventListener("input", updateQRCode);
+
+        // QRコードを更新する関数
+        function updateQRCode() {
+            const text = inputText.value;
+            qrCodeDiv.innerHTML = ""; // 以前のQRコードをクリア
+
+            if (text.trim() !== "") {
+                const qrcode = new QRCode(qrCodeDiv, {
+                    text: text,
+                    width: 128,
+                    height: 128,
+                });
             }
         }
 
-        // QRコードを読み取る
-        async function scanQRCode() {
-            const codeReader = new ZXing.BrowserQRCodeReader();
-            try {
-                const result = await codeReader.decodeFromVideoDevice(undefined, "qr-video");
-                qrResult.textContent = "読み取った文字列: " + result.text;
-            } catch (error) {
-                qrResult.textContent = "QRコードの読み取りに失敗しました。";
-            }
-        }
-
-        // カメラを起動してQRコード読み取りを開始する
-        function startQRCodeScan() {
-            scanQRCode();
-        }
-
-        // ボタンがクリックされたときの処理
-        startCameraBtn.addEventListener("click", function () {
-            setupCamera();
-        });
+        // ページ読み込み時に初期のQRコードを生成
+        updateQRCode();
     </script>
 </body>
 </html>
