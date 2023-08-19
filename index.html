@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>QRコード生成器</title>
+    <title>QRコード生成とダウンロード</title>
     <style>
         #input-text {
             width: 80%;
@@ -10,21 +10,39 @@
         }
         #qr-code {
             margin-top: 20px;
+            position: relative;
+        }
+        #caption-input {
+            margin-top: 10px;
+            width: 80%;
+            padding: 5px;
+            font-size: 14px;
+        }
+        #download-button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>QRコード生成器</h1>
+    <h1>QRコード生成とダウンロード</h1>
     <input type="text" id="input-text" placeholder="QRコードにしたいテキストを入力してください">
+    <input type="text" id="caption-input" placeholder="キャプションを入力してください">
     <div id="qr-code"></div>
+    <button id="download-button">QRコードをダウンロード</button>
 
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script>
         const inputText = document.getElementById("input-text");
+        const captionInput = document.getElementById("caption-input");
         const qrCodeDiv = document.getElementById("qr-code");
+        const downloadButton = document.getElementById("download-button");
 
-        // テキストが変更されたときにQRコードを更新する
-        inputText.addEventListener("input", updateQRCode);
+        let qrCodeInstance;
 
         // QRコードを更新する関数
         function updateQRCode() {
@@ -32,13 +50,35 @@
             qrCodeDiv.innerHTML = ""; // 以前のQRコードをクリア
 
             if (text.trim() !== "") {
-                const qrcode = new QRCode(qrCodeDiv, {
+                qrCodeInstance = new QRCode(qrCodeDiv, {
                     text: text,
-                    width: 128,
-                    height: 128,
+                    width: 256,
+                    height: 256,
                 });
             }
         }
+
+        // ボタンがクリックされたときにQRコードをダウンロード
+        downloadButton.addEventListener("click", function () {
+            const canvas = qrCodeDiv.querySelector("canvas");
+            const ctx = canvas.getContext("2d");
+            const caption = captionInput.value;
+
+            // キャプションをQRコード画像の上部に描画
+            ctx.font = "16px Arial";
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#000";
+            ctx.fillText(caption, canvas.width / 2, 20);
+
+            // 画像としてダウンロード
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL();
+            link.download = "qr_code_with_caption.png";
+            link.click();
+        });
+
+        // テキストが変更されるたびにQRコードを更新
+        inputText.addEventListener("input", updateQRCode);
 
         // ページ読み込み時に初期のQRコードを生成
         updateQRCode();
