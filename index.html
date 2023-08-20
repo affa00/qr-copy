@@ -12,12 +12,6 @@
             margin-top: 20px;
             position: relative;
         }
-        #caption-input {
-            margin-top: 10px;
-            width: 80%;
-            padding: 5px;
-            font-size: 14px;
-        }
         #download-button {
             margin-top: 10px;
             padding: 5px 10px;
@@ -31,15 +25,16 @@
 <body>
     <h1>QRコード生成とダウンロード</h1>
     <input type="text" id="input-text" placeholder="QRコードにしたいテキストを入力してください">
-    <input type="text" id="caption-input" placeholder="キャプションを入力してください">
+    <button id="generate-button">QRコードを生成</button>
     <div id="qr-code"></div>
-    <button id="download-button">QRコードをダウンロード</button>
+    <p id="caption-input">キャプション</p>
+    <button id="download-button" style="display:none;">QRコードをダウンロード</button>
 
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script>
         const inputText = document.getElementById("input-text");
-        const captionInput = document.getElementById("caption-input");
         const qrCodeDiv = document.getElementById("qr-code");
+        const captionInput = document.getElementById("caption-input");
         const downloadButton = document.getElementById("download-button");
 
         let qrCodeInstance;
@@ -55,20 +50,26 @@
                     width: 256,
                     height: 256,
                 });
+                qrCodeDiv.style.paddingTop = "20px";
+                captionInput.style.display = "block";
+                downloadButton.style.display = "block";
             }
         }
 
         // ボタンがクリックされたときにQRコードをダウンロード
         downloadButton.addEventListener("click", function () {
+            updateQRCode();
             const canvas = qrCodeDiv.querySelector("canvas");
             const ctx = canvas.getContext("2d");
-            const caption = captionInput.value;
+            const caption = captionInput.innerText;
 
             // キャプションをQRコード画像の上部に描画
             ctx.font = "16px Arial";
             ctx.textAlign = "center";
             ctx.fillStyle = "#000";
-            ctx.fillText(caption, canvas.width / 2, 20);
+            const textMetrics = ctx.measureText(caption);
+            const captionWidth = textMetrics.width;
+            ctx.fillText(caption, canvas.width / 2, 10 + captionWidth);
 
             // 画像としてダウンロード
             const link = document.createElement("a");
@@ -76,12 +77,6 @@
             link.download = "qr_code_with_caption.png";
             link.click();
         });
-
-        // テキストが変更されるたびにQRコードを更新
-        inputText.addEventListener("input", updateQRCode);
-
-        // ページ読み込み時に初期のQRコードを生成
-        updateQRCode();
     </script>
 </body>
 </html>
