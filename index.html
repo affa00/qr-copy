@@ -33,6 +33,7 @@
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script>
         const inputText = document.getElementById("input-text");
+        const generateButton = document.getElementById("generate-button");
         const qrCodeDiv = document.getElementById("qr-code");
         const captionInput = document.getElementById("caption-input");
         const downloadButton = document.getElementById("download-button");
@@ -56,9 +57,13 @@
             }
         }
 
+        // ボタンがクリックされたときにQRコードを生成
+        generateButton.addEventListener("click", function () {
+            updateQRCode();
+        });
+
         // ボタンがクリックされたときにQRコードをダウンロード
         downloadButton.addEventListener("click", function () {
-            updateQRCode();
             const canvas = qrCodeDiv.querySelector("canvas");
             const ctx = canvas.getContext("2d");
             const caption = captionInput.innerText;
